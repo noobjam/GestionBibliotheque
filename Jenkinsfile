@@ -21,7 +21,7 @@ pipeline {
         }
         stage('Quality Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube') {
+                withSonarQubeEnv('cube-scanner') {
                     bat "\"${MAVEN_HOME}\\bin\\mvn\" sonar:sonar"
                 }
             }
