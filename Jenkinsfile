@@ -44,4 +44,4 @@ pipeline {
 //                 body: 'Le build a échoué.'
 //         }
 //     }
-// }
+}
