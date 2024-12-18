@@ -9,6 +9,10 @@ public class Borrow {
     private Date borrowDate;
     private Date returnDate;
 
+    // Constructeur par défaut
+    public Borrow() {
+    }
+
     // Constructeur complet
     public Borrow(int id, Student student, Book book, Date borrowDate, Date returnDate) {
         this.id = id;

@@ -1,48 +1,94 @@
-package com.library.test;
+package com.library;
 
 import com.library.dao.StudentDAO;
 import com.library.model.Student;
 import com.library.service.StudentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class StudentServiceTest {
+
+    private StudentDAO studentDAOMock;
     private StudentService studentService;
-    private StudentDAO studentDAO;
+    private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
 
     @BeforeEach
     void setUp() {
-        studentDAO = new StudentDAO();
-        studentService = new StudentService(studentDAO);
+        studentDAOMock = Mockito.mock(StudentDAO.class);
+        studentService = new StudentService(studentDAOMock);
+        System.setOut(new PrintStream(outputStreamCaptor));  // Rediriger la sortie vers le ByteArrayOutputStream
     }
 
     @Test
     void testAddStudent() {
-        studentService.addStudent(1, "Alice", "alice@example.com");
-        assertEquals(1, studentDAO.getAllStudents().size());
-        assertEquals("Alice", studentDAO.getStudentById(1).get().getName());
+        // Créer un étudiant à ajouter
+        Student student = new Student(1, "Alice");
+
+        // Appeler la méthode du service pour ajouter l'étudiant
+        studentService.addStudent(student);
+
+        // Vérifier que le DAO a bien été appelé
+        verify(studentDAOMock).addStudent(student);
+    }
+
+    @Test
+    void testDisplayStudents() {
+        List<Student> students = Arrays.asList(
+                new Student(1, "Alice"),
+                new Student(2, "Bob")
+        );
+        when(studentDAOMock.getAllStudents()).thenReturn(students);
+
+        studentService.displayStudents();
+
+        verify(studentDAOMock, times(1)).getAllStudents();
     }
 
     @Test
     void testUpdateStudent() {
-        studentService.addStudent(1, "Alice", "alice@example.com");
-        studentService.updateStudent(1, "Alice Smith", "alice.smith@example.com");
-        assertEquals("Alice Smith", studentDAO.getStudentById(1).get().getName());
+        // Créer un étudiant à ajouter
+        Student student = new Student(1, "Alice");
+
+        // Appeler la méthode du service pour ajouter l'étudiant
+        studentService.addStudent(student);
+
+        // Mettre à jour le nom de l'étudiant
+        student.setName("Alice Updated");
+
+        // Simuler la mise à jour de l'étudiant
+        when(studentDAOMock.getStudentById(1)).thenReturn(student);
+
+        // Appeler la méthode du service pour mettre à jour l'étudiant
+        studentService.updateStudent(student);
+
+        // Vérifier que la méthode update du DAO a bien été appelée
+        verify(studentDAOMock).updateStudent(student);
     }
 
     @Test
     void testDeleteStudent() {
-        studentService.addStudent(1, "Alice", "alice@example.com");
-        studentService.deleteStudent(1);
-        assertTrue(studentDAO.getStudentById(1).isEmpty());
-    }
+        // Créer un étudiant à ajouter
+        Student student = new Student(1, "Alice");
 
-    @Test
-    void testGetAllStudents() {
-        studentService.addStudent(1, "Alice", "alice@example.com");
-        studentService.addStudent(2, "Bob", "bob@example.com");
-        assertEquals(2, studentDAO.getAllStudents().size());
+        // Simuler l'ajout de l'étudiant
+        when(studentDAOMock.getStudentById(1)).thenReturn(student);
+
+        // Appeler la méthode du service pour ajouter l'étudiant
+        studentService.addStudent(student);
+
+        // Appeler la méthode pour supprimer l'étudiant
+        studentService.deleteStudent(1);
+
+        // Vérifier que la méthode delete du DAO a bien été appelée
+        verify(studentDAOMock).deleteStudent(1);
     }
 }
