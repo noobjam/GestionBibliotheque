@@ -30,7 +30,8 @@ pipeline {
                         "-Dsonar.projectKey=GestionBibliotheque " +
                         "-Dsonar.projectName='GestionBibliotheque' " +
                         "-Dsonar.host.url=http://localhost:9000 " +
-                        "-Dsonar.token=sqp_bb1264b96c3f28ec385abc4ee0ec1b8141a34f94"
+                        "-Dsonar.token=sqp_aca1c401629c233c2a27e148a11b8663837cf798"
+
                 }
             }
         }
