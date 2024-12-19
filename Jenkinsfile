@@ -2,6 +2,7 @@ pipeline {
     agent any
     environment {
         MAVEN_HOME = tool 'Maven'
+        DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/YOUR_WEBHOOK_URL'
     }
     stages {
         stage('Checkout') {
@@ -45,16 +46,38 @@ pipeline {
             }
         }
     }
-//     post {
-//         success {
-//             emailext to: 'elqajjam@gmail.com',
-//                 subject: 'Build Success',
-//                 body: 'Le build a été complété avec succès.'
-//         }
-//         failure {
-//             emailext to: 'elqajjam@gmail.com',
-//                 subject: 'Build Failed',
-//                 body: 'Le build a échoué.'
-//         }
-//     }
+    post {
+        success {
+            script {
+                // Send success notification to Discord
+                def message = """
+                **Build Successful**
+                Project: GestionBibliotheque
+                Branch: ${env.BRANCH_NAME ?: 'main'}
+                """
+                sendDiscordNotification(message)
+            }
+        }
+        failure {
+            script {
+                // Send failure notification to Discord
+                def message = """
+                **Build Failed**
+                Project: GestionBibliotheque
+                Branch: ${env.BRANCH_NAME ?: 'main'}
+                """
+                sendDiscordNotification(message)
+            }
+        }
+    }
+}
+
+def sendDiscordNotification(message) {
+    def payload = """
+    {
+        "content": "${message}"
+    }
+    """
+    // Send POST request to Discord webhook
+    httpRequest acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON', url: 'https://discord.com/api/webhooks/1319347656891564032/wFFq8BIl5WhDPRyeBuwmzYCNmWt8pt0d8UpqIlYFJTksuOhK2cmCv0tq4I4PDcEUQGnj', httpMode: 'POST', requestBody: payload
 }
