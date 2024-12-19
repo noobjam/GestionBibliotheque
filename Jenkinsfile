@@ -6,7 +6,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-
+                // Clone the repository dynamically based on the branch or PR
                 script {
                     if (env.BRANCH_NAME) {
                         echo "Building branch: ${env.BRANCH_NAME}"
