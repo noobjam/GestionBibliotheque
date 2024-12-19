@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         MAVEN_HOME = tool 'Maven'
-        DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/YOUR_WEBHOOK_URL'
+        DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1319347656891564032/wFFq8BIl5WhDPRyeBuwmzYCNmWt8pt0d8UpqIlYFJTksuOhK2cmCv0tq4I4PDcEUQGnj'
     }
     stages {
         stage('Checkout') {
@@ -73,11 +73,25 @@ pipeline {
 }
 
 def sendDiscordNotification(message) {
+    // Escape the message to ensure special characters like newlines are properly handled
+    def cleanMessage = message.replace("\n", "\\n").replace("\"", "\\\"")
+
+    // Prepare the JSON payload
     def payload = """
     {
-        "content": "${message}"
+        "content": "${cleanMessage}"
     }
     """
+
+    // Debug: Print the payload to ensure it is correctly formatted
+    echo "Sending message to Discord: ${payload}"
+
     // Send POST request to Discord webhook
-    httpRequest acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON', url: 'https://discord.com/api/webhooks/1319347656891564032/wFFq8BIl5WhDPRyeBuwmzYCNmWt8pt0d8UpqIlYFJTksuOhK2cmCv0tq4I4PDcEUQGnj', httpMode: 'POST', requestBody: payload
+    try {
+        httpRequest acceptType: 'APPLICATION_JSON', contentType: 'APPLICATION_JSON',
+                    url: env.DISCORD_WEBHOOK_URL, httpMode: 'POST', requestBody: payload
+    } catch (Exception e) {
+        echo "Error sending Discord notification: ${e.getMessage()}"
+        error "Failed to send notification"
+    }
 }
